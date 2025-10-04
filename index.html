@@ -3,196 +3,144 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Abrir apps desde la web - Demo</title>
+  <title>Abrir apps (clean)</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:#f5f7fb;color:#0b1220}
-    .container{max-width:720px;margin:36px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(11,18,32,0.08)}
-    h1{margin:0 0 8px;font-size:20px}
-    p.lead{margin:0 0 18px;color:#495466}
-    .btn{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;border:0;font-size:16px;cursor:pointer;width:100%;margin-bottom:12px;box-shadow:0 2px 8px rgba(11,18,32,0.06);background:#f2f6ff}
-    .btn:active{transform:translateY(1px)}
-    footer{margin-top:12px;font-size:13px;color:#6b7382}
-    small.code{display:block;margin-top:8px;padding:10px;background:#fafafa;border-radius:8px;font-family:monospace}
+    :root{--bg:#dfffd8;--card:#ffffff;--text:#072019}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
+    .wrap{max-width:720px;margin:28px auto;padding:18px;background:var(--card);border-radius:12px}
+    h1{font-size:18px;margin:0 0 8px}
+    p.note{margin:0 0 12px;color:#254a32;font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    button.btn{padding:12px;border-radius:10px;border:0;background:#f2fff6;cursor:pointer;font-size:14px}
+    footer{margin-top:12px;font-size:13px;color:#325139}
+    .small{font-family:monospace;font-size:12px;margin-top:8px}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Abrir apps desde el navegador (demo)</h1>
-    <p class="lead">Pulsa un botón desde tu teléfono móvil: la página intentará abrir la aplicación nativa (Gmail, YouTube, Ajustes). Si no está disponible, te llevará a la versión web.</p>
+  <div class="wrap">
+    <h1>Abrir apps desde el navegador</h1>
+    <p class="note">Intentará abrir las apps instaladas automáticamente. Más fiable en <strong>Chrome para Android</strong>. Si no funciona, el botón intenta un fallback web o abre un selector (galería/cámara).</p>
 
-    <button class="btn" onclick="openGmailInbox()">📥 Abrir Gmail (bandeja de entrada)</button>
-    <button class="btn" onclick="composeGmail()">✉️ Redactar email (Gmail / Mail)</button>
-    <button class="btn" onclick="openGmailSettings()">⚙️ Abrir ajustes de Gmail (mejor intento)</button>
+    <div class="grid">
+      <button class="btn" onclick="openSettings()">⚙️ Ajustes</button>
+      <button class="btn" onclick="openGallery()">🖼️ Galería</button>
 
-    <hr>
+      <button class="btn" onclick="openCamera()">📷 Cámara</button>
+      <button class="btn" onclick="openGmail()">✉️ Gmail</button>
 
-    <button class="btn" onclick="openYouTube()">▶️ Abrir YouTube</button>
-    <button class="btn" onclick="openSystemSettings()">🔧 Abrir ajustes del sistema (Android — limitado)</button>
+      <button class="btn" onclick="openYouTube()">▶️ YouTube</button>
+      <button class="btn" onclick="openMaps()">🗺️ Maps</button>
 
-    <div id="settings-modal" style="display:none;position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;">
-      <div style="max-width:420px;margin:16px;padding:18px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(11,18,32,0.12);">
-        <h3 style="margin-top:0;margin-bottom:8px">No se pudo abrir Ajustes automáticamente</h3>
-        <p style="margin:0 0 8px">Tu navegador no permite abrir los Ajustes desde una página web. Sigue estos pasos manuales o copia las instrucciones:</p>
-        <ol style="margin:0 0 12px 18px;padding:0;color:#333">
-          <li>Abre la app <strong>Ajustes</strong> (Settings) en tu teléfono.</li>
-          <li>Entra en <strong>Aplicaciones</strong> / <strong>Apps</strong> (o <strong>Apps & notificaciones</strong>).</li>
-          <li>Localiza la app del navegador (por ejemplo, <em>Chrome</em> o <em>Samsung Internet</em>).</li>
-          <li>Entra y ve a <strong>Permisos</strong> o la sección que necesites cambiar.</li>
-        </ol>
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
-          <button id="copy-steps-btn" class="btn" style="width:auto;padding:8px 12px">📋 Copiar pasos</button>
-          <button id="open-help-btn" class="btn" style="width:auto;padding:8px 12px">🔗 Abrir ayuda</button>
-          <button id="close-modal-btn" class="btn" style="width:auto;padding:8px 12px">Cerrar</button>
-        </div>
-      </div>
+      <button class="btn" onclick="openWhatsApp()">💬 WhatsApp</button>
+      <button class="btn" onclick="openTelegram()">📨 Telegram</button>
+
+      <button class="btn" onclick="openInstagram()">📷 Instagram</button>
+      <button class="btn" onclick="openFacebook()">📘 Facebook</button>
+
+      <button class="btn" onclick="openTwitter()">🐦 X / Twitter</button>
+      <button class="btn" onclick="openPlayStore()">🛒 Play Store</button>
+
+      <button class="btn" onclick="openPhoneDialer()">📞 Teléfono</button>
+      <button class="btn" onclick="openSms()">📩 SMS</button>
+
+      <button class="btn" onclick="openCalendar()">📆 Calendario</button>
+      <button class="btn" onclick="openChrome()">🌐 Abrir Chrome</button>
     </div>
 
     <footer>
-      <strong>Notas:</strong>
-      <ul>
-        <li>Algunas acciones (como abrir ajustes del sistema o pantallas específicas de una app) sólo funcionan en Android y dependen del navegador.</li>
-        <li>En iOS funcionan las URL schemes como <code>googlegmail://</code> o <code>youtube://</code> si la app está instalada; si no, se abrirá la web.</li>
-        <li>Este es un ejemplo educativo — los comportamientos exactos dependen del sistema operativo, navegador y versión de la app.</li>
-      </ul>
+      <div class="small">Archivo: index_open_apps_clean.html</div>
     </footer>
-
-    <small class="code">Archivo: index_open_apps.html — abrir en el móvil para probar.</small>
   </div>
 
   <script>
-    // Utilidad: redirige a una URI de esquema (scheme) o, si no se abre, va al fallback (web)
-    function tryOpen({schemeUrl, intentUrl, fallbackUrl}){
-      const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-      const isAndroid = /android/i.test(navigator.userAgent);
+    const ua = navigator.userAgent || '';
+    const isAndroid = /android/i.test(ua);
+    const isIOS = /iP(hone|ad|od)/i.test(ua) && !window.MSStream;
+    const isChromeOnAndroid = isAndroid && /Chrome\/\d+/.test(ua) && !/OPR|Edg|SamsungBrowser|FxiOS|CriOS/.test(ua);
 
-      // Prioridad: en Android usamos intent: si está disponible, es la opción más fiable para forzar abrir la app.
-      if(isAndroid && intentUrl){
-        // Directo a intent: URI (Chrome en Android lo maneja)
-        window.location = intentUrl;
+    // Método general: si Chrome en Android -> usar intent: (más fiable). Si iOS -> iframe forzado. Otros -> click en enlace.
+    function openWith({scheme, intent, fallback, useIframeForIOS=false}){
+      if(isChromeOnAndroid && intent){
+        window.location.href = intent;
         return;
       }
 
-      // En iOS y Android probamos schemeUrl (ej: googlegmail://, youtube://)
-      if(schemeUrl){
-        // Intentamos abrir el scheme y si no funciona redirigimos al fallback
-        const start = Date.now();
-        // cambio de location al scheme -- si la app está instalada, el navegador cambiará de app.
-        window.location = schemeUrl;
-
-        // después de un corto timeout, si seguimos en la página, vamos al fallback
-        setTimeout(() => {
-          // simple heurística: si han pasado más de 1200ms, probablemente no se abrió la app
-          if(Date.now() - start < 2000){
-            window.location = fallbackUrl;
-          }
-        }, 900);
+      if(isIOS && useIframeForIOS && scheme){
+        const iframe = document.createElement('iframe');
+        iframe.style.display='none';
+        iframe.src = scheme;
+        document.body.appendChild(iframe);
+        setTimeout(()=>{ document.body.removeChild(iframe); if(fallback) window.location.href = fallback; }, 900);
         return;
       }
 
-      // Si no hay scheme ni intent, redirigimos directamente al fallback
-      window.location = fallbackUrl;
-    }
-
-    // --- Gmail: bandeja de entrada ---
-    function openGmailInbox(){
-      tryOpen({
-        schemeUrl: 'googlegmail://inbox',
-        intentUrl: 'intent://inbox#Intent;package=com.google.android.gm;scheme=googlegmail;end;',
-        fallbackUrl: 'https://mail.google.com/mail/u/0/#inbox'
-      });
-    }
-
-    // --- Gmail: redactar correo ---
-    function composeGmail(){
-      // mailto funciona bien como fallback web y abre el cliente por defecto en móvil
-      tryOpen({
-        schemeUrl: 'googlegmail://co?to=&subject=Hola&body=Escribe aquí',
-        intentUrl: 'intent://co?subject=Hola&body=Escribe%20aqui#Intent;package=com.google.android.gm;scheme=googlegmail;end;',
-        fallbackUrl: 'mailto:?subject=Hola&body=Escribe%20aqui'
-      });
-    }
-
-    // --- Gmail: ajustes (mejor intento) ---
-    function openGmailSettings(){
-      // No existe un scheme universal público garantizado para abrir directamente la pantalla "Ajustes" de Gmail
-      // Hacemos el mejor intento: abrimos Gmail para que el usuario desde la app vaya a Ajustes.
-      tryOpen({
-        schemeUrl: 'googlegmail://inbox',
-        intentUrl: 'intent://inbox#Intent;package=com.google.android.gm;scheme=googlegmail;end;',
-        fallbackUrl: 'https://support.google.com/mail/'
-      });
-    }
-
-    // --- YouTube ---
-    function openYouTube(){
-      tryOpen({
-        schemeUrl: 'youtube://',
-        intentUrl: 'intent://www.youtube.com/#Intent;package=com.google.android.youtube;scheme=https;end;',
-        fallbackUrl: 'https://www.youtube.com/'
-      });
-    }
-
-    // --- Ajustes del sistema (Android limitado) ---
-    function openSystemSettings(){
-      // Intent para abrir Ajustes en Android (formato que entiende Chrome)
-      const isAndroid = /android/i.test(navigator.userAgent);
-      if(!isAndroid){
-        alert('Abrir ajustes del sistema desde la web sólo es posible (parcialmente) en Android.');
+      if(scheme){
+        const a = document.createElement('a');
+        a.href = scheme;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{ try{ document.body.removeChild(a);}catch(e){} if(fallback) window.location.href = fallback; }, 800);
         return;
       }
 
-      // Probamos formatos de intent más compatibles con Chrome/Android
-      // Nota: si el navegador no soporta 'intent:' verás net::ERR_UNKNOWN_URL_SCHEME
-      const intentCandidates = [
-        'intent://settings#Intent;action=android.settings.SETTINGS;end',
-        'intent://#Intent;action=android.settings.SETTINGS;end'
-      ];
-
-      // Intentar abrir el intent; si no funciona, después del timeout vamos al fallback
-      window.location = intentCandidates[0];
-
-      // Fallback: si el navegador no soporta intent: o la app no responde, abrimos la página de ayuda
-      setTimeout(() => {
-        window.location = 'https://support.google.com/android/answer/7680439';
-      }, 1200);
+      if(fallback) window.location.href = fallback;
     }
+
+    // Buttons implementations
+    function openSettings(){
+      // Intent para abrir Ajustes en Android (Chrome). En iOS suele bloquearse.
+      openWith({
+        intent: 'intent:#Intent;action=android.settings.SETTINGS;end',
+        scheme: 'app-settings:', // placeholder; la mayoría de navs lo ignorarán
+        fallback: 'https://support.google.com/android/answer/7680439',
+        useIframeForIOS: false
+      });
+    }
+
+    function openGallery(){
+      // Para abrir galería: input file sin capture suele abrir selector de galería
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.multiple = false;
+      input.style.display = 'none';
+      document.body.appendChild(input);
+      input.addEventListener('change', ()=>{ document.body.removeChild(input); });
+      input.click();
+    }
+
+    function openCamera(){
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment';
+      input.style.display = 'none';
+      document.body.appendChild(input);
+      input.addEventListener('change', ()=>{ document.body.removeChild(input); });
+      input.click();
+    }
+
+    function openGmail(){
+      openWith({
+        scheme: 'googlegmail://inbox',
+        intent: 'intent://inbox#Intent;package=com.google.android.gm;scheme=googlegmail;end;',
+        fallback: 'https://mail.google.com/'
+      });
+    }
+
+    function openYouTube(){ openWith({scheme:'youtube://', intent:'intent://www.youtube.com/#Intent;package=com.google.android.youtube;scheme=https;end;', fallback:'https://www.youtube.com/'}); }
+    function openMaps(){ openWith({scheme:'geo:0,0?q=', intent:'intent://maps.google.com/#Intent;package=com.google.android.apps.maps;scheme=https;end;', fallback:'https://www.google.com/maps'}); }
+    function openWhatsApp(){ openWith({scheme:'whatsapp://send?text=Hola', fallback:'https://wa.me/?text=Hola'}); }
+    function openTelegram(){ openWith({scheme:'tg://', fallback:'https://t.me/'}); }
+    function openInstagram(){ openWith({scheme:'instagram://user', fallback:'https://www.instagram.com/'}); }
+    function openFacebook(){ openWith({scheme:'fb://', fallback:'https://www.facebook.com/'}); }
+    function openTwitter(){ openWith({scheme:'twitter://', fallback:'https://twitter.com/'}); }
+    function openPlayStore(){ openWith({intent:'intent://details?id=com.android.vending#Intent;package=com.android.vending;scheme=market;end;', fallback:'https://play.google.com/store'}); }
+    function openPhoneDialer(){ openWith({scheme:'tel:+56900000000'}); }
+    function openSms(){ openWith({scheme:'sms:+56900000000?body=Hola'}); }
+    function openCalendar(){ openWith({scheme:'content://com.android.calendar/time/'}); }
+    function openChrome(){ openWith({scheme:'googlechrome://', fallback:'https://www.google.com'}); }
+
   </script>
-<script>(function(){
-      const ua = navigator.userAgent || '';
-      const isAndroid = /android/i.test(ua);
-      const isChromeOnAndroid = isAndroid && ua.indexOf('Chrome/') !== -1 && ua.indexOf('OPR') === -1 && ua.indexOf('Edg') === -1 && ua.indexOf('SamsungBrowser') === -1 && ua.indexOf('FxiOS') === -1 && ua.indexOf('CriOS') === -1;
-
-      function showSettingsModal(){
-        const m = document.getElementById('settings-modal');
-        if(m) m.style.display = 'flex';
-      }
-
-      function copyStepsToClipboard(){
-        const text = 'Abre Ajustes > Aplicaciones (o Apps) > Busca tu navegador (p ej. Chrome) > Permisos';
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(text).then(()=>{ alert('Pasos copiados'); }).catch(()=>{ alert(text); });
-        } else {
-          alert(text);
-        }
-      }
-
-      window.openSystemSettings = function(){
-        if(!isAndroid){ showSettingsModal(); return; }
-        if(isChromeOnAndroid){
-          var intentUri = 'intent:#Intent;action=android.settings.SETTINGS;end';
-          try{ window.location = intentUri; }catch(e){ setTimeout(showSettingsModal,600); }
-          setTimeout(showSettingsModal,900);
-          return;
-        }
-        showSettingsModal();
-      }
-
-      document.addEventListener('click', function(e){
-        if(e.target && e.target.id === 'copy-steps-btn'){ copyStepsToClipboard(); }
-        if(e.target && e.target.id === 'close-modal-btn'){ const m = document.getElementById('settings-modal'); if(m) m.style.display='none'; }
-        if(e.target && e.target.id === 'open-help-btn'){ window.open('https://support.google.com/android/answer/7680439','_blank'); }
-      });
-
-    })();</script>
 </body>
 </html>
