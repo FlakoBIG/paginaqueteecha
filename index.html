@@ -116,18 +116,27 @@
 
     // --- Ajustes del sistema (Android limitado) ---
     function openSystemSettings(){
-      // Android (Chrome) permite intentar abrir un intent con la acción android.settings.SETTINGS
-      // Esto NO funcionará en iOS ni en algunos navegadores.
+      // Intent para abrir Ajustes en Android (formato que entiende Chrome)
       const isAndroid = /android/i.test(navigator.userAgent);
-      if(isAndroid){
-        // Intent que pide abrir los Ajustes del dispositivo
-        const intent = 'intent:#Intent;action=android.settings.SETTINGS;end;';
-        window.location = intent;
-        // si no funciona, redirect al panel de ayuda web
-        setTimeout(() => { window.location = 'https://support.google.com/android/answer/6280514'; }, 1000);
-      } else {
+      if(!isAndroid){
         alert('Abrir ajustes del sistema desde la web sólo es posible (parcialmente) en Android.');
+        return;
       }
+
+      // Probamos formatos de intent más compatibles con Chrome/Android
+      // Nota: si el navegador no soporta 'intent:' verás net::ERR_UNKNOWN_URL_SCHEME
+      const intentCandidates = [
+        'intent://settings#Intent;action=android.settings.SETTINGS;end',
+        'intent://#Intent;action=android.settings.SETTINGS;end'
+      ];
+
+      // Intentar abrir el intent; si no funciona, después del timeout vamos al fallback
+      window.location = intentCandidates[0];
+
+      // Fallback: si el navegador no soporta intent: o la app no responde, abrimos la página de ayuda
+      setTimeout(() => {
+        window.location = 'https://support.google.com/android/answer/7680439';
+      }, 1200);
     }
   </script>
 </body>
