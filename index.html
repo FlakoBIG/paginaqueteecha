@@ -1,146 +1,335 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Abrir apps (clean)</title>
-  <style>
-    :root{--bg:#dfffd8;--card:#ffffff;--text:#072019}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
-    .wrap{max-width:720px;margin:28px auto;padding:18px;background:var(--card);border-radius:12px}
-    h1{font-size:18px;margin:0 0 8px}
-    p.note{margin:0 0 12px;color:#254a32;font-size:13px}
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    button.btn{padding:12px;border-radius:10px;border:0;background:#f2fff6;cursor:pointer;font-size:14px}
-    footer{margin-top:12px;font-size:13px;color:#325139}
-    .small{font-family:monospace;font-size:12px;margin-top:8px}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Abrir apps — multi-intent (Huawei Y7 2018)</title>
+<style>
+  :root{--bg:#c8f7c1}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#063a1f;display:flex;align-items:center;justify-content:center;height:100vh}
+  .card{width:94%;max-width:460px;background:#fff;padding:18px;border-radius:14px;box-shadow:0 8px 30px rgba(5,40,20,0.08);text-align:center}
+  h1{font-size:18px;margin:0 0 10px}
+  p.note{font-size:13px;color:#2c6b45;margin:0 0 14px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  button{padding:12px;border-radius:10px;border:0;background:#e9fff0;cursor:pointer;font-size:14px}
+  small{display:block;margin-top:12px;color:#376b4f}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Abrir apps desde el navegador</h1>
-    <p class="note">Intentará abrir las apps instaladas automáticamente. Más fiable en <strong>Chrome para Android</strong>. Si no funciona, el botón intenta un fallback web o abre un selector (galería/cámara).</p>
+  <div class="card">
+    <h1>Abrir apps — intentos múltiples</h1>
+    <p class="note">Prueba esto en <strong>Chrome para Android</strong> en el Huawei Y7 2018. Si una opción no abre, espera 1–2s y el script intentará la siguiente alternativa.</p>
 
     <div class="grid">
-      <button class="btn" onclick="openSettings()">⚙️ Ajustes</button>
-      <button class="btn" onclick="openGallery()">🖼️ Galería</button>
+      <button onclick="runSequence('camera')">📷 Abrir Cámara</button>
+      <button onclick="runSequence('gallery')">🖼️ Abrir Galería</button>
 
-      <button class="btn" onclick="openCamera()">📷 Cámara</button>
-      <button class="btn" onclick="openGmail()">✉️ Gmail</button>
+      <button onclick="runSequence('filemanager')">📂 Administrador archivos</button>
+      <button onclick="runSequence('settings')">⚙️ Ajustes del sistema</button>
 
-      <button class="btn" onclick="openYouTube()">▶️ YouTube</button>
-      <button class="btn" onclick="openMaps()">🗺️ Maps</button>
+      <button onclick="runSequence('gmail')">✉️ Gmail</button>
+      <button onclick="runSequence('maps')">🗺️ Maps</button>
 
-      <button class="btn" onclick="openWhatsApp()">💬 WhatsApp</button>
-      <button class="btn" onclick="openTelegram()">📨 Telegram</button>
+      <button onclick="runSequence('youtube')">▶️ YouTube</button>
+      <button onclick="runSequence('photos')">🖼️ Google Fotos</button>
 
-      <button class="btn" onclick="openInstagram()">📷 Instagram</button>
-      <button class="btn" onclick="openFacebook()">📘 Facebook</button>
-
-      <button class="btn" onclick="openTwitter()">🐦 X / Twitter</button>
-      <button class="btn" onclick="openPlayStore()">🛒 Play Store</button>
-
-      <button class="btn" onclick="openPhoneDialer()">📞 Teléfono</button>
-      <button class="btn" onclick="openSms()">📩 SMS</button>
-
-      <button class="btn" onclick="openCalendar()">📆 Calendario</button>
-      <button class="btn" onclick="openChrome()">🌐 Abrir Chrome</button>
+      <button onclick="runSequence('drive')">☁️ Drive</button>
+      <button onclick="runSequence('play')">🛒 Play Store</button>
     </div>
 
-    <footer>
-      <div class="small">Archivo: index_open_apps_clean.html</div>
-    </footer>
+    <small>Si una acción no abre la app intenta de nuevo y prueba con Chrome. El comportamiento depende del navegador y la ROM.</small>
   </div>
 
-  <script>
-    const ua = navigator.userAgent || '';
-    const isAndroid = /android/i.test(ua);
-    const isIOS = /iP(hone|ad|od)/i.test(ua) && !window.MSStream;
-    const isChromeOnAndroid = isAndroid && /Chrome\/\d+/.test(ua) && !/OPR|Edg|SamsungBrowser|FxiOS|CriOS/.test(ua);
+<script>
+(function(){
+  const ua = navigator.userAgent || '';
+  const isAndroid = /android/i.test(ua);
+  const isChrome = isAndroid && /Chrome\/\d+/.test(ua) && !/OPR|Edg|SamsungBrowser|FxiOS|CriOS/.test(ua);
 
-    // Método general: si Chrome en Android -> usar intent: (más fiable). Si iOS -> iframe forzado. Otros -> click en enlace.
-    function openWith({scheme, intent, fallback, useIframeForIOS=false}){
-      if(isChromeOnAndroid && intent){
-        window.location.href = intent;
-        return;
-      }
-
-      if(isIOS && useIframeForIOS && scheme){
-        const iframe = document.createElement('iframe');
-        iframe.style.display='none';
-        iframe.src = scheme;
-        document.body.appendChild(iframe);
-        setTimeout(()=>{ document.body.removeChild(iframe); if(fallback) window.location.href = fallback; }, 900);
-        return;
-      }
-
-      if(scheme){
-        const a = document.createElement('a');
-        a.href = scheme;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(()=>{ try{ document.body.removeChild(a);}catch(e){} if(fallback) window.location.href = fallback; }, 800);
-        return;
-      }
-
-      if(fallback) window.location.href = fallback;
+  // Heurística: intentar varias URIs y detectar éxito mediante Visibility API
+  function tryUrisSequentially(uris, fallbackUrl){
+    if(!Array.isArray(uris) || uris.length===0){
+      if(fallbackUrl) window.location.href = fallbackUrl;
+      else alert('No hay opciones disponibles para esta acción.');
+      return;
     }
 
-    // Buttons implementations
-    function openSettings(){
-      // Intent para abrir Ajustes en Android (Chrome). En iOS suele bloquearse.
-      openWith({
-        intent: 'intent:#Intent;action=android.settings.SETTINGS;end',
-        scheme: 'app-settings:', // placeholder; la mayoría de navs lo ignorarán
-        fallback: 'https://support.google.com/android/answer/7680439',
-        useIframeForIOS: false
+    let idx = 0;
+    let stop = false;
+
+    function attemptNext(){
+      if(stop || idx >= uris.length){
+        if(!stop){
+          if(fallbackUrl) window.location.href = fallbackUrl;
+          else alert('No se pudo abrir la app desde el navegador.');
+        }
+        return;
+      }
+
+      const uri = uris[idx++];
+      const startHidden = document.hidden;
+
+      // If Chrome on Android and uri starts with "intent:", use location directly
+      if(isChrome && uri.startsWith('intent:')){
+        // Use location change
+        document.location = uri;
+      } else if(isAndroid && uri.startsWith('intent:')){
+        // Non-chrome Android may throw ERR_UNKNOWN_URL_SCHEME; try via anchor click as fallback
+        safeOpenViaAnchor(uri);
+      } else if(uri.startsWith('intent:')===false && uri.indexOf('://')>-1){
+        // scheme or https
+        safeOpenViaAnchor(uri);
+      } else {
+        safeOpenViaAnchor(uri);
+      }
+
+      // Wait short time and check visibility; if page hidden, assume success
+      const tryDelay = 900;
+      let visibilityChanged = false;
+
+      function onVisibility(){
+        visibilityChanged = true;
+        stop = true;
+        cleanup();
+      }
+
+      function cleanup(){
+        document.removeEventListener('visibilitychange', onVisibility);
+      }
+
+      document.addEventListener('visibilitychange', onVisibility);
+
+      setTimeout(() => {
+        cleanup();
+        if(!visibilityChanged && !document.hidden){
+          // didn't open, try next
+          attemptNext();
+        } else {
+          // success (or page hidden)
+        }
+      }, tryDelay);
+    }
+
+    attemptNext();
+  }
+
+  function safeOpenViaAnchor(uri){
+    try{
+      const a = document.createElement('a');
+      a.href = uri;
+      a.style.display='none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ try{ document.body.removeChild(a);}catch(e){} }, 1200);
+    }catch(e){
+      // fallback to location
+      try{ document.location = uri; }catch(err){}
+    }
+  }
+
+  // Sequences predefinidas — múltiples intent/scheme/packages para aumentar probabilidad
+  const sequences = {
+    camera: {
+      uris: [
+        // intent ACTION_IMAGE_CAPTURE (Chrome Android)
+        'intent:#Intent;action=android.media.action.IMAGE_CAPTURE;end',
+        // Try common camera package URIs (some manufacturers)
+        'camera://', // generic scheme (rare)
+        // Fallback: open file input capture (guaranteed to open selector/cámara)
+        // We'll inject an input if all intents fail (handled below)
+      ],
+      fallback: null,
+      finalFallbackAction: function(){
+        // create input capture as last-resort (will open camera or chooser)
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        input.style.display='none';
+        document.body.appendChild(input);
+        input.addEventListener('change', ()=>{ try{document.body.removeChild(input);}catch(e){} });
+        input.click();
+      }
+    },
+
+    gallery: {
+      uris: [
+        // Try PICK images intent
+        'intent:#Intent;action=android.intent.action.PICK;type=image/*;end',
+        // Try specific gallery package names (common)
+        'content://media/internal/images/media', // may open gallery provider
+        'content://media/external/images/media',
+        // Package-specific schemes (try several)
+        'com.android.gallery3d://', // common AOSP gallery
+        'photos://', // attempt for google photos scheme (not official)
+      ],
+      fallback: null,
+      finalFallbackAction: function(){
+        // input without capture tends to open gallery/selector
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display='none';
+        document.body.appendChild(input);
+        input.addEventListener('change', ()=>{ try{document.body.removeChild(input);}catch(e){} });
+        input.click();
+      }
+    },
+
+    filemanager: {
+      uris: [
+        // Try documents UI
+        'intent:#Intent;action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;type=*/*;end',
+        // Try some package names (varies by vendor)
+        'content://com.android.externalstorage.documents/tree/primary:', // documents provider
+        'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_FILES;end',
+        'filemanager://', // generic scheme try
+      ],
+      fallback: null,
+      finalFallbackAction: function(){
+        alert('No se pudo abrir el administrador de archivos directamente. Si quieres, abre la app de Archivos manualmente.');
+      }
+    },
+
+    settings: {
+      uris: [
+        'intent:#Intent;action=android.settings.SETTINGS;end',
+        'intent:#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;end',
+        'app-settings://', // iOS-like placeholder (rare)
+      ],
+      fallback: 'https://support.google.com/android/answer/7680439',
+      finalFallbackAction: null
+    },
+
+    // Google apps
+    gmail: {
+      uris: [
+        'intent://inbox#Intent;package=com.google.android.gm;scheme=googlegmail;end',
+        'googlegmail://inbox',
+        'mailto:',
+      ],
+      fallback: 'https://mail.google.com'
+    },
+    maps: {
+      uris: [
+        'intent://maps.google.com/#Intent;package=com.google.android.apps.maps;scheme=https;end',
+        'geo:0,0?q=',
+        'https://www.google.com/maps'
+      ],
+      fallback: 'https://www.google.com/maps'
+    },
+    youtube: {
+      uris: [
+        'intent://www.youtube.com/#Intent;package=com.google.android.youtube;scheme=https;end',
+        'youtube://',
+        'https://www.youtube.com'
+      ],
+      fallback: 'https://www.youtube.com'
+    },
+    photos: {
+      uris: [
+        'intent://#Intent;package=com.google.android.apps.photos;scheme=content;end',
+        'content://media/external/images/media',
+        'https://photos.google.com'
+      ],
+      fallback: 'https://photos.google.com'
+    },
+    drive: {
+      uris: [
+        'intent://#Intent;package=com.google.android.apps.docs;scheme=content;end',
+        'googledrive://',
+        'https://drive.google.com'
+      ],
+      fallback: 'https://drive.google.com'
+    },
+    play: {
+      uris: [
+        'intent://details?id=com.android.vending#Intent;package=com.android.vending;scheme=market;end',
+        'market://details?id=com.android.vending',
+        'https://play.google.com/store'
+      ],
+      fallback: 'https://play.google.com/store'
+    }
+  };
+
+  // Public runner called by buttons
+  window.runSequence = function(key){
+    const seq = sequences[key];
+    if(!seq){
+      alert('Acción no definida.');
+      return;
+    }
+
+    // If sequence contains uris, try them first. After tries, run finalFallbackAction if present.
+    if(seq.uris && seq.uris.length>0){
+      // Use a wrapper that tries sequentially; final fallback if all fail
+      // We'll modify tryUrisSequentially to call finalFallbackAction if defined
+      let tried = 0;
+      let successDetected = false;
+
+      function attemptList(list, onDone){
+        if(!list || list.length===0){ onDone(false); return; }
+        let i = 0;
+
+        function next(){
+          if(successDetected) return;
+          if(i >= list.length){ onDone(false); return; }
+          const uri = list[i++];
+
+          // Before trying, record visibility state
+          const beforeHidden = document.hidden;
+
+          // Try open
+          if(isChrome && uri.startsWith('intent:')){
+            location.href = uri;
+          } else {
+            safeOpenViaAnchor(uri);
+          }
+
+          // Wait and check visibility
+          let handled = false;
+          const to = setTimeout(()=> {
+            if(!document.hidden){
+              // no visibility change -> try next
+              next();
+            } else {
+              successDetected = true;
+            }
+            handled = true;
+          }, 900);
+
+          // Also listen for visibilitychange immediately
+          function onVis(){
+            if(document.hidden && !handled){
+              clearTimeout(to);
+              successDetected = true;
+            }
+          }
+          document.addEventListener('visibilitychange', onVis, {once:true});
+        }
+
+        next();
+      }
+
+      attemptList(seq.uris, function(ok){
+        // if not ok after uris, run finalFallbackAction if provided; else fallbackUrl
+        setTimeout(()=>{ // small delay to ensure visibility events processed
+          if(seq.finalFallbackAction && !successDetected){
+            try{ seq.finalFallbackAction(); }catch(e){ if(seq.fallback) window.location.href = seq.fallback; else alert('No se pudo abrir.'); }
+          } else if(!successDetected){
+            if(seq.fallback) window.location.href = seq.fallback;
+          }
+        }, 1100);
       });
+
+    } else {
+      // no URIs: just fallback
+      if(seq.fallback) window.location.href = seq.fallback;
+      else alert('No hay opciones para esta acción.');
     }
+  };
 
-    function openGallery(){
-      // Para abrir galería: input file sin capture suele abrir selector de galería
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.multiple = false;
-      input.style.display = 'none';
-      document.body.appendChild(input);
-      input.addEventListener('change', ()=>{ document.body.removeChild(input); });
-      input.click();
-    }
-
-    function openCamera(){
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'environment';
-      input.style.display = 'none';
-      document.body.appendChild(input);
-      input.addEventListener('change', ()=>{ document.body.removeChild(input); });
-      input.click();
-    }
-
-    function openGmail(){
-      openWith({
-        scheme: 'googlegmail://inbox',
-        intent: 'intent://inbox#Intent;package=com.google.android.gm;scheme=googlegmail;end;',
-        fallback: 'https://mail.google.com/'
-      });
-    }
-
-    function openYouTube(){ openWith({scheme:'youtube://', intent:'intent://www.youtube.com/#Intent;package=com.google.android.youtube;scheme=https;end;', fallback:'https://www.youtube.com/'}); }
-    function openMaps(){ openWith({scheme:'geo:0,0?q=', intent:'intent://maps.google.com/#Intent;package=com.google.android.apps.maps;scheme=https;end;', fallback:'https://www.google.com/maps'}); }
-    function openWhatsApp(){ openWith({scheme:'whatsapp://send?text=Hola', fallback:'https://wa.me/?text=Hola'}); }
-    function openTelegram(){ openWith({scheme:'tg://', fallback:'https://t.me/'}); }
-    function openInstagram(){ openWith({scheme:'instagram://user', fallback:'https://www.instagram.com/'}); }
-    function openFacebook(){ openWith({scheme:'fb://', fallback:'https://www.facebook.com/'}); }
-    function openTwitter(){ openWith({scheme:'twitter://', fallback:'https://twitter.com/'}); }
-    function openPlayStore(){ openWith({intent:'intent://details?id=com.android.vending#Intent;package=com.android.vending;scheme=market;end;', fallback:'https://play.google.com/store'}); }
-    function openPhoneDialer(){ openWith({scheme:'tel:+56900000000'}); }
-    function openSms(){ openWith({scheme:'sms:+56900000000?body=Hola'}); }
-    function openCalendar(){ openWith({scheme:'content://com.android.calendar/time/'}); }
-    function openChrome(){ openWith({scheme:'googlechrome://', fallback:'https://www.google.com'}); }
-
-  </script>
+})();
+</script>
 </body>
 </html>
